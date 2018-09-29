@@ -35,9 +35,10 @@ def test_config():
         print "        None found."
         return False
     
-    if not os.path.exists(basepath + "/.config/students.txt"):
-        print "        No student file found in config folder."
-        return False
+    # Not checking student file, because an empty one causes the assigner
+    # if not os.path.exists(basepath + "/.config/students.txt"):
+    #    print "        No student file found in config folder."
+    #    return False
     
     if not os.path.exists(basepath + "/.config/paths.txt"):
         print "        No paths file found in config folder."
@@ -73,8 +74,9 @@ def init_config():
         print "    ...creating new config folder"
         os.mkdir(basepath + "/.config")
 
+    # Opting to not do this and have the assigner do it later
     # Create the students file (will be populated later)
-    open(basepath + "/.config/students.txt", 'w+').close()
+    # open(basepath + "/.config/students.txt", 'w+').close()
 
     # Get the paths file output ready
     newpaths = ''
@@ -140,11 +142,15 @@ def read_config():
     global tograde_path
     
     # Get the students list
-    studfile = open(basepath + "/.config/students.txt", 'r')
-    students = studfile.read().split('\n')
-    studfile.close()
-    while '' in students:
-        students.remove('')
+    # If it does not exist, the assigner will make it later
+    if os.path.exists(basepath + "/.config/students.txt"):
+        studfile = open(basepath + "/.config/students.txt", 'r')
+        students = studfile.read().split('\n')
+        studfile.close()
+        while '' in students:
+            students.remove('')
+    else:
+        students = []
 
     # Get the download path and to-grade directory
     pathfile = open(basepath + "/.config/paths.txt", 'r')
@@ -311,7 +317,7 @@ def assign_students():
             print ''
             print _divider
             print "    ...saving section to configs"
-            studfile = open(basepath + '/.config/students.txt', 'w')
+            studfile = open(basepath + '/.config/students.txt', 'w+')
             for student in students:
                 studfile.write(student + "\n")
             studfile.close()
