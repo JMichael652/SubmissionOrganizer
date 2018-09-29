@@ -166,16 +166,19 @@ for item in os.listdir(download_path):
         suffix_index == len(item) - len(submission_suffix) and \
         item.find(course_prefix) == 0:
             submission_title = item
-    else:  # There was no submission zip found
-        print "        None found matching pattern '%sASSIGNMENT%s'" % \
-            (course_prefix, submission_suffix)
-        print "No bulk download ZIP file from Canvas found."
-        print "Try downloading again, then re-run this organizer."
-        sys.exit()
+            found = True
+            break
+
+if not found:
+    print "        None found matching pattern '%sASSIGNMENT%s'" % \
+        (course_prefix, submission_suffix)
+    print "No bulk download ZIP file from Canvas found."
+    print "Try downloading again, then re-run this organizer."
+    sys.exit()
 
 print "        Found %s" % submission_title
-assignment_title = submission_title.substring(len(course_prefix), suffix_index)
-print assignment_title
+assignment_title = submission_title[len(course_prefix):suffix_index]
+print "        Assignment title:", assignment_title
 # TODO Unzip the bulk folder to "./temp_itsname"
 print "    ...unzipping bulk submission folder into temporary file"
 # TODO For all the submissions in the folder
