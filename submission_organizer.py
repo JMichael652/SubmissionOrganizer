@@ -9,7 +9,9 @@
 #       this is the actual student submission zip, renamed with the prefix
 
 import os
+import shutil
 import sys
+import zipfile
 
 # Setup initial config variables
 download_path = ''
@@ -103,7 +105,7 @@ def init_config():
         print "> ",
         sys.stdout.flush()
         choice = raw_input()
-        if choice == 'Y' or choice == 'y':
+        if choice.lower() == 'y':
             try:
                 os.mkdir(tograde_path)
             except OSError:
@@ -111,7 +113,7 @@ def init_config():
                 choice = ''
         else:
             print ''  # Newline for when not 'Y', but not when OSError
-        if not (choice == 'Y' or choice == 'y'):
+        if not choice.lower() == 'y':
             print "Enter another path:"
             print "> ",
             sys.stdout.flush()
@@ -141,6 +143,8 @@ def read_config():
     studfile = open(basepath + "/.config/students.txt", 'r')
     students = studfile.read().split('\n')
     studfile.close()
+    while '' in students:
+        students.remove('')
 
     # Get the download path and to-grade directory
     pathfile = open(basepath + "/.config/paths.txt", 'r')
@@ -157,7 +161,7 @@ if not test_config():
 read_config()
 
 # Get the submission file
-print "    ...searching for submissions in %s" % download_path
+print "    ...searching for bulk submission archive in %s" % download_path
 
 found = False
 for item in os.listdir(download_path):
@@ -180,10 +184,151 @@ if not found:
 print "        Found %s" % submission_title
 assignment_title = submission_title[len(course_prefix):suffix_index]
 print "        Assignment title:", assignment_title
-# TODO Unzip the bulk folder to "./temp_itsname"
+
+
+
+# Create temporary folder and unzip submission folder to it
+temp_path = download_path + "/temp_" + submission_title[:-4]
+if os.path.exists(temp_path):  # If temp_file was previously undeleted
+    shutil.rmtree(temp_path, ignore_errors=True)  # Remove the entire tree
+os.mkdir(temp_path)
 print "    ...unzipping bulk submission folder into temporary file"
+bulk = zipfile.ZipFile(download_path + '/' + submission_title)
+bulk.extractall(temp_path)
+
+
+def assign_students():
+    """Assigns students to the students file in the config folder.
+    This is called after unzipping to the temp folder if the students file is
+    empty."""
+
+    students_all = []
+    for item in os.listdir(temp_path):
+        # Add 'lastfirstmiddle' from the filename 'lastfirstmiddle_2345_etc...'
+        students_all += [item[:item.find('_')]]
+
+    # Assign students numbers for section assignment
+    non_section = {}
+    for i in range(1,len(students_all)+1):
+        non_section[i] = students_all[i-1]
+    section = {}
+
+    # Prepare to build the tables of students in the section and not
+    max_namelen = max([len(name) for name in students_all])
+    table_colsize = 6 + max_namelen  # Each item is ' ###: lastmiddlefirst'
+    table_cols = 80 // table_colsize
+
+    # Giant ugly loop for printing the section and non_section tables
+    # ...and taking the user input for whether to add or remove from section
+    # ...and actually doing the adding and removing
+    choice = -1
+    while choice != 3:
+
+        # Place non-section students in table
+        print "\n" + _divider + ("\nStudents not in section (format is "
+            "lastname - firstname - middlename):\n") + _divider
+        cur_col = 0
+        for number in sorted(non_section.keys()):
+            if cur_col == table_cols:
+                print ''
+                cur_col = 0
+            print (" %3d: %-"+str(max_namelen)+"s") % \
+                    (number, non_section[number]),
+            cur_col += 1
+        print ''
+
+        # Place section students in table
+        print _divider + "\nStudents in section:\n" + _divider
+        cur_col = 0
+        for number in sorted(section.keys()):
+            if cur_col == table_cols:
+                print ''
+                cur_col = 0
+            print (" %3d: %-"+str(max_namelen)+"s") % (number, section[number]),
+            cur_col += 1
+        print ''
+
+        # Decide whether to add, remove, or save section
+        print _divider + ("\nSELECT: (1) Add to section, (2) Remove from "
+                          "section, (3) Save section and finish\n> "),
+
+        choice = 4  # Code for not a valid selection
+        while choice == 4:
+            sys.stdout.flush()
+            choice = raw_input()
+            if '1' in choice or 'add' in choice.lower():
+                print ("\nEnter student numbers to add to section "
+                       "(eg. 1, 3, 8):\n> "),
+                choice = 1
+            elif '2' in choice or 'remove' in choice.lower():
+                print ("\nEnter student numbers to remove from section "
+                       "(eg. 1, 3, 8):\n> "),
+                choice = 2
+            elif '3' in choice or 'save' in choice.lower():
+                choice = 3
+            else:
+                print "'" + choice + "' is not a valid selection.\n> ",
+                choice = 4
+    
+        # Interpret choice
+        stud_list = []
+        if choice == 1 or choice == 2:  # Add or remove
+            sys.stdout.flush()
+            in_list = raw_input().split(',')
+            for item in in_list:
+                try:
+                    stud_list += [int(item)]
+                except:
+                    pass
+        if choice == 1:  # Add
+            for number in stud_list:
+                if number in non_section.keys():
+                    section[number] = non_section[number]
+                    del non_section[number]
+        elif choice == 2:  # Remove
+            for number in stud_list:
+                if number in section.keys():
+                    non_section[number] = section[number]
+                    del section[number]
+        else:  # Save
+
+            if len(section.keys()) == 0:  # No students actually added
+                return
+            
+            global students
+            students = [section[number] for number in section.keys()]
+            print ''
+            print _divider + "\nFinal Section:\n" + _divider
+            max_namelen = max([len(name) for name in students]) + 2
+            table_cols = 80 // max_namelen
+            col_num = 0
+            for student in students:
+                if col_num == table_cols:
+                    print ''
+                    col_num = 0
+                print ("%-"+str(max_namelen)+"s") % student,
+                col_num += 1
+            print ''
+            print _divider
+            print "    ...saving section to configs"
+            studfile = open(basepath + '/.config/students.txt', 'w')
+            for student in students:
+                studfile.write(student + "\n")
+            studfile.close()
+
+# Check to see if assigning students to section is necessary
+while len(students) == 0:
+    print "\nStudents have not been assigned to your section."
+    print "Press Enter to open the section assigner..."
+    sys.stdout.flush()
+    raw_input()
+    assign_students()
+    if len(students) == 0:
+        print "\n\nAssigning resulted in no students being added..."
+
 # TODO For all the submissions in the folder
 print "    ...assigning submissions to students"
+print students
 # TODO Create a dictionary mapping student lastfirstmiddle to their filename
 # TODO If the "./config/students.txt" is empty, ask user which to add to it
 section = []  # Array of lastfirstmiddle of students in section
