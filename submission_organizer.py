@@ -16,12 +16,12 @@ download_path = ''
 course_prefix = "CS-2261-A-"
 submission_suffix = "_submissions.zip"
 tograde_path = '' 
-basepath = os.getcwd()
 students = []
+basepath = os.getcwd()
+_divider = '='*80
 
 # Give welcome message
-print ("\n================================================================="
-        "===============")
+print ("\n" + _divider)
 print "Welcome to the CS 2261 Canvas Student Submission Organizer!"
 print "    ...searching for config folder"
 
@@ -172,6 +172,7 @@ for item in os.listdir(download_path):
 if not found:
     print "        None found matching pattern '%sASSIGNMENT%s'" % \
         (course_prefix, submission_suffix)
+    print _divider + '\n'
     print "No bulk download ZIP file from Canvas found."
     print "Try downloading again, then re-run this organizer."
     sys.exit()
