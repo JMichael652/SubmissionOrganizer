@@ -44,22 +44,17 @@ def test_config():
     pathfile = open(basepath + "/.config/paths.txt", 'r')
     paths = pathfile.read()
     pathfile.close()
-    print "paths: ", paths
 
     paths = paths.split('\n')
-    print "paths split1: ", paths
     if len(paths) < 2:
-        print paths
         print "\t\tNo valid paths file found in config folder."
         return False
     paths = paths[0].split('=') + paths[1].split('=')
-    print "paths split2: ", paths
     if len(paths) < 4 or \
             paths[0] != "DOWNLOAD_PATH" or \
             paths[2] != "TOGRADE_PATH" or \
             not os.path.exists(paths[1]) or \
             not os.path.exists(paths[3]):
-        print '1:', paths[1], '2:', paths[3]
         print "\t\tNo valid paths file found in config folder."
         return False
 
