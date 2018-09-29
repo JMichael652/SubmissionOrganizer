@@ -23,22 +23,22 @@ students = []
 print ("\n================================================================="
         "===============")
 print "Welcome to the CS 2261 Canvas Student Submission Organizer!"
-print "\t...searching for config folder"
+print "    ...searching for config folder"
 
 def test_config():
     """Return whether a config folder exists in a completed state.
     """
 
     if not os.path.exists(basepath + "/.config"):
-        print "\t\tNone found."
+        print "        None found."
         return False
     
     if not os.path.exists(basepath + "/.config/students.txt"):
-        print "\t\tNo student file found in config folder."
+        print "        No student file found in config folder."
         return False
     
     if not os.path.exists(basepath + "/.config/paths.txt"):
-        print "\t\tNo paths file found in config folder."
+        print "        No paths file found in config folder."
         return False
 
     pathfile = open(basepath + "/.config/paths.txt", 'r')
@@ -47,7 +47,7 @@ def test_config():
 
     paths = paths.split('\n')
     if len(paths) < 2:
-        print "\t\tNo valid paths file found in config folder."
+        print "        No valid paths file found in config folder."
         return False
     paths = paths[0].split('=') + paths[1].split('=')
     if len(paths) < 4 or \
@@ -55,7 +55,7 @@ def test_config():
             paths[2] != "TOGRADE_PATH" or \
             not os.path.exists(paths[1]) or \
             not os.path.exists(paths[3]):
-        print "\t\tNo valid paths file found in config folder."
+        print "        No valid paths file found in config folder."
         return False
 
     # No problems with config, so return True
@@ -68,7 +68,7 @@ def init_config():
     
     # Create the config folder
     if not os.path.exists(basepath + "/.config"):
-        print "\t...creating new config folder"
+        print "    ...creating new config folder"
         os.mkdir(basepath + "/.config")
 
     # Create the students file (will be populated later)
@@ -157,20 +157,20 @@ if not test_config():
 read_config()
 
 # Get the submission file
-print "\t...searching for submissions in %s" % download_path
+print "    ...searching for submissions in %s" % download_path
 # TODO If there is no download found
-print "\t\tNone found matching pattern '%sASSIGNMENT%s'" % \
+print "        None found matching pattern '%sASSIGNMENT%s'" % \
     (course_prefix, submission_suffix)
 print "No bulk download ZIP file from Canvas found."
 print "Try downloading again, then re-run this organizer."
 # TODO Else (the download was found)
 submission_title = ""
-print "\t\tFound %s" % submission_title
+print "        Found %s" % submission_title
 assignment_title = ""
 # TODO Unzip the bulk folder to "./temp_itsname"
-print "\t...unzipping bulk submission folder into temporary file"
+print "    ...unzipping bulk submission folder into temporary file"
 # TODO For all the submissions in the folder
-print "\t...assigning submissions to students"
+print "    ...assigning submissions to students"
 # TODO Create a dictionary mapping student lastfirstmiddle to their filename
 # TODO If the "./config/students.txt" is empty, ask user which to add to it
 section = []  # Array of lastfirstmiddle of students in section
@@ -178,28 +178,28 @@ section = []  # Array of lastfirstmiddle of students in section
 missing_subs = []  # Array of names of students with no submission
 # TODO Iterate through students in section, add to missing if not in dictionary
 if len(missing_subs) > 0:
-    print "\t   Missing Submission for: ",
+    print "        Missing Submission for: ",
     for student in missing_subs:
         print student,
     print ""  # Force newline
 # TODO Delete submissions for students not in "./config/students.txt"
-print "\t...removing submissions for students from other sections"
+print "    ...removing submissions for students from other sections"
 # TODO Create folder for this assigment in dest_directory
-print "\t...creating folder for %s" % assignment_title
+print "    ...creating folder for %s" % assignment_title
 # TODO Create folder for each student
-print "\t...creating student subfolders"
+print "    ...creating student subfolders"
 # TODO Unzip student submissions to the folder
-print "\t...unzipping student submissions into student subfolders"
+print "    ...unzipping student submissions into student subfolders"
 student = ""
 submission = ""
 # TODO If file could not be unzipped, report the error and just copy to folder
-print "\t\tSubmission by '%s' could not be unzipped." % student
-print "\t\t\tSubmission: '%s'" % submission
-print "\t\t...copying problem file to student subfolder"
+print "        Submission by '%s' could not be unzipped." % student
+print "            Submission: '%s'" % submission
+print "        ...copying problem file to student subfolder"
 # TODO Copy the nonfunctional zip to the student's subfolder
 # TODO Else, remove the zip
 # TODO Remove the temporary folder and original zip
-print "\t...removing temp folder"
-print "\t...removing bulk submission zip"
+print "    ...removing temp folder"
+print "    ...removing bulk submission zip"
 print "Done."
 
