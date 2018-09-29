@@ -158,15 +158,24 @@ read_config()
 
 # Get the submission file
 print "    ...searching for submissions in %s" % download_path
-# TODO If there is no download found
-print "        None found matching pattern '%sASSIGNMENT%s'" % \
-    (course_prefix, submission_suffix)
-print "No bulk download ZIP file from Canvas found."
-print "Try downloading again, then re-run this organizer."
-# TODO Else (the download was found)
-submission_title = ""
+
+found = False
+for item in os.listdir(download_path):
+    suffix_index = item.rfind(submission_suffix)
+    if suffix_index > 0 and \
+        suffix_index == len(item) - len(submission_suffix) and \
+        item.find(course_prefix) == 0:
+            submission_title = item
+    else:  # There was no submission zip found
+        print "        None found matching pattern '%sASSIGNMENT%s'" % \
+            (course_prefix, submission_suffix)
+        print "No bulk download ZIP file from Canvas found."
+        print "Try downloading again, then re-run this organizer."
+        sys.exit()
+
 print "        Found %s" % submission_title
-assignment_title = ""
+assignment_title = submission_title.substring(len(course_prefix), suffix_index)
+print assignment_title
 # TODO Unzip the bulk folder to "./temp_itsname"
 print "    ...unzipping bulk submission folder into temporary file"
 # TODO For all the submissions in the folder
