@@ -181,17 +181,16 @@ read_config()
 # Get the submission file
 print "    ...searching for bulk submission archive in %s" % download_path
 
-found = False
+possibles = []
 for item in os.listdir(download_path):
     suffix_index = item.rfind(submission_suffix)
     if suffix_index > 0 and \
         suffix_index == len(item) - len(submission_suffix) and \
         item.find(course_prefix) == 0:
-            submission_title = item
-            found = True
-            break
+            possibles += [item]
 
-if not found:
+# If there were no possible bulk submission files found
+if len(possibles) == 0:
     print "        None found matching pattern '%sASSIGNMENT%s'" % \
         (course_prefix, submission_suffix)
     print _divider + '\n'
@@ -199,8 +198,26 @@ if not found:
     print "Try downloading again, then re-run this organizer."
     sys.exit()
 
-print "        Found %s" % submission_title
-assignment_title = submission_title[len(course_prefix):suffix_index]
+# If possibles have a file in tograde already, remove then as a possible
+for item in [copy for copy in possibles]:
+    possible_title = item[len(course_prefix): \
+        item.rfind(submission_suffix)]
+    if os.path.exists(tograde_path + '/' + possible_title): 
+        possibles.remove(item)
+
+# If possibles is now empty, all bulk submission files have already been graded
+if len(possibles) == 0:
+    print "        No ungraded bulk zips found."
+    print _divider
+    print ("\nThere are bulk submission zips, but all of them already have "
+            "been previously\nprocessed. Delete the assignment folders in\n'%s'"            " to reprocess them.") % tograde_path
+    sys.exit()
+
+submission_title = possibles[0]
+
+print "        Submission selected:", submission_title
+assignment_title = submission_title[len(course_prefix): \
+    submission_title.rfind(submission_suffix)]
 print "        Assignment title:", assignment_title
 
 
@@ -417,7 +434,9 @@ for student in submissions.keys():
         missing_subs += [student]
         del submission[student]
 
-
+# Make project folder for unzipping submissions
+tograde_path += '/' + assignment_title
+os.mkdir(tograde_path)
 
 
 
