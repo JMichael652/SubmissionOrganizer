@@ -264,7 +264,7 @@ def assign_students():
         print "\n" + _divider + ("\nStudents not in section (format is "
             "lastname - firstname - middlename):\n") + _divider
         cur_col = 0
-        for number in sorted(non_section.keys()):
+        for number in sorted(non_section):
             if cur_col == table_cols:
                 print ''
                 cur_col = 0
@@ -276,7 +276,7 @@ def assign_students():
         # Place section students in table
         print _divider + "\nStudents in section:\n" + _divider
         cur_col = 0
-        for number in sorted(section.keys()):
+        for number in sorted(section):
             if cur_col == table_cols:
                 print ''
                 cur_col = 0
@@ -318,24 +318,24 @@ def assign_students():
                     pass
         if choice == 1:  # Add
             for number in stud_list:
-                if number in non_section.keys():
+                if number in non_section:
                     section[number] = non_section[number]
                     del non_section[number]
         elif choice == 2:  # Remove
             for number in stud_list:
-                if number in section.keys():
+                if number in section:
                     non_section[number] = section[number]
                     del section[number]
         else:  # Save
 
-            if len(section.keys()) == 0:  # No students actually added
+            if len(section) == 0:  # No students actually added
                 return
             
             global students
             global nonsection_students
-            students = [section[number] for number in sorted(section.keys())]
+            students = [section[number] for number in sorted(section)]
             nonsection_students = [non_section[number] for number in \
-                sorted(non_section.keys())]
+                sorted(non_section)]
             print ''
             print _divider + "\nFinal Section:\n" + _divider
             max_namelen = max([len(name) for name in students]) + 2
@@ -386,10 +386,10 @@ for submission in os.listdir(temp_path):
 # Consider adding unclassified students to section
 if len(unclassified) > 0:
     new_students = {}
-    for i in range(1, len(unclassified.keys())+1):
+    for i in range(1, len(unclassified)+1):
         new_students[i] = unclassified.keys()[i-1]
     print "\nThe following students have not been seen in a previous session:"
-    for number in new_students.keys():
+    for number in new_students:
         print "%2d: %s" % (number, new_students[number])
     print "\nEnter student numbers to add to section (eg. 1, 3, 8)\n> ",
     sys.stdout.flush()
@@ -404,7 +404,7 @@ if len(unclassified) > 0:
             pass
     changes = []
     for number in stud_list:
-        if number in new_students.keys():
+        if number in new_students:
             changes += [new_students[number]]
             del new_students[number]
 
@@ -422,14 +422,14 @@ if len(unclassified) > 0:
 
     # Add the unchosen unclassified students to the nonsection
     studfile = open(basepath + "/.config/nonsection.txt", 'a')
-    for number in new_students.keys():
+    for number in new_students:
         studfile.write(new_students[number] + '\n')
         nonsection_students += [new_students[number]]
     studfile.close()
 
 # Find students in section with no submission
 missing_subs = []
-for student in submissions.keys():
+for student in submissions:
     if len(submissions[student]) == 0:
         missing_subs += [student]
         del submission[student]
