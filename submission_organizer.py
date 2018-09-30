@@ -17,8 +17,9 @@ import zipfile
 download_path = ''
 course_prefix = "CS-2261-A-"
 submission_suffix = "_submissions.zip"
-tograde_path = '' 
+tograde_path = ''
 students = []
+nonsection_students = []
 basepath = os.getcwd()
 _divider = '='*80
 
@@ -152,6 +153,16 @@ def read_config():
     else:
         students = []
 
+    # Get the list of students not in the grader's section
+    if os.path.exists(basepath + "/.config/nonsection.txt"):
+        studfile = open(basepath + "/.config/nonsection.txt", 'r')
+        nonsection_students = studfile.read().split('\n')
+        studfile.close()
+        while '' in nonsection_students:
+            nonsection_students.remove('')
+    else:
+        nonsection_students = []
+
     # Get the download path and to-grade directory
     pathfile = open(basepath + "/.config/paths.txt", 'r')
     paths = pathfile.read().split('\n')
@@ -205,6 +216,7 @@ bulk.extractall(temp_path)
 
 def assign_students():
     """Assigns students to the students file in the config folder.
+    Assigns all other students to the nonstudents file.
     This is called after unzipping to the temp folder if the students file is
     empty."""
 
@@ -302,7 +314,10 @@ def assign_students():
                 return
             
             global students
-            students = [section[number] for number in section.keys()]
+            global nonsection_students
+            students = [section[number] for number in sorted(section.keys())]
+            nonsection_students = [non_section[number] for number in \
+                sorted(non_section.keys())]
             print ''
             print _divider + "\nFinal Section:\n" + _divider
             max_namelen = max([len(name) for name in students]) + 2
@@ -316,9 +331,16 @@ def assign_students():
                 col_num += 1
             print ''
             print _divider
+
+            # Save the results to the config files
             print "    ...saving section to configs"
             studfile = open(basepath + '/.config/students.txt', 'w+')
             for student in students:
+                studfile.write(student + "\n")
+            studfile.close()
+
+            studfile = open(basepath + '/.config/nonsection.txt', 'w+')
+            for student in nonsection_students:
                 studfile.write(student + "\n")
             studfile.close()
 
