@@ -453,6 +453,10 @@ for student in submissions:
         os.rename(temp_path + '/' + submissions[student], \
             tograde_path + '/' + student + '/' + submissions[student])
 
+# Remove the temporary folder and bulk submission zip
+shutil.rmtree(temp_path + '/' + item)
+os.remove(download_path + '/' + submission_title)
+
 # Report which students in section had no submission
 if len(missing_subs) > 0:
     print "The following students did not submit anything:"
