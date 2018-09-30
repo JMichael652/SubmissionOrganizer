@@ -230,6 +230,7 @@ os.mkdir(temp_path)
 print "    ...unzipping bulk submission folder into temporary file"
 bulk = zipfile.ZipFile(download_path + '/' + submission_title)
 bulk.extractall(temp_path)
+bulk.close()
 
 
 def assign_students():
@@ -447,6 +448,7 @@ for student in submissions:
     if zipfile.is_zipfile(temp_path + '/' + submissions[student]):
         subzip = zipfile.ZipFile(temp_path + '/' + submissions[student])
         subzip.extractall(tograde_path + '/' + student)
+        subzip.close()
     else:
         # If not a valid zip, copy to the student's folder
         nonzip_subs += [student]
@@ -454,7 +456,7 @@ for student in submissions:
             tograde_path + '/' + student + '/' + submissions[student])
 
 # Remove the temporary folder and bulk submission zip
-shutil.rmtree(temp_path + '/' + item)
+shutil.rmtree(temp_path, ignore_errors=True)
 os.remove(download_path + '/' + submission_title)
 
 # Report which students in section had no submission
