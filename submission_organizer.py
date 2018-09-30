@@ -139,6 +139,7 @@ def read_config():
     
     # Reference the global variables
     global students
+    global nonsection_students
     global download_path
     global tograde_path
     
@@ -354,9 +355,63 @@ while len(students) == 0:
     if len(students) == 0:
         print "\n\nAssigning resulted in no students being added..."
 
-# TODO For all the submissions in the folder
+# Find submissions of students in grader's section
 print "    ...assigning submissions to students"
-print students
+submissions = {}
+unclassified = {}
+for submission in os.listdir(temp_path):
+    author = submission[:submission.find('_')]
+    if author in students:  # We want to process this submission
+        submissions[author] = submission
+    elif author not in nonsection_students:  # The student is unclassified
+        unclassified[author] = submission
+
+# Consider adding unclassified students to section
+if len(unclassified) > 0:
+    new_students = {}
+    for i in range(1, len(unclassified.keys())+1):
+        new_students[i] = unclassified.keys()[i-1]
+    print "\nThe following students have not been seen in a previous session:"
+    for number in new_students.keys():
+        print "%2d: %s" % (number, new_students[number])
+    print "\nEnter student numbers to add to section (eg. 1, 3, 8)\n> ",
+    sys.stdout.flush()
+    in_list = raw_input().split(',')
+
+    # Interpret the input and remove them from new_students
+    stud_list = []
+    for item in in_list:
+        try:
+            stud_list += [int(item)]
+        except:
+            pass
+    changes = []
+    for number in stud_list:
+        if number in new_students.keys():
+            changes += [new_students[number]]
+            del new_students[number]
+
+    # If students were selected, add to students, submissions, and config
+    if len(changes) > 0:
+        print "\nThe following students have been added to your section:"
+        studfile = open(basepath + "/.config/students.txt", 'a')
+        for student in changes:
+            studfile.write(student + '\n')
+            students += [student]
+            submissions[student] = unclassified[student]
+            print "  " + student
+        studfile.close()
+        print '\n'
+
+    # Add the unchosen unclassified students to the nonsection
+    studfile = open(basepath + "/.config/nonsection.txt", 'a')
+    for number in new_students.keys():
+        studfile.write(new_students[number] + '\n')
+        nonsection_students += [new_students[number]]
+    studfile.close()
+
+
+
 # TODO Create a dictionary mapping student lastfirstmiddle to their filename
 # TODO If the "./config/students.txt" is empty, ask user which to add to it
 section = []  # Array of lastfirstmiddle of students in section
