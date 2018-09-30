@@ -410,19 +410,23 @@ if len(unclassified) > 0:
         nonsection_students += [new_students[number]]
     studfile.close()
 
+# Find students in section with no submission
+missing_subs = []
+for student in submissions.keys():
+    if len(submissions[student]) == 0:
+        missing_subs += [student]
+        del submission[student]
 
 
-# TODO Create a dictionary mapping student lastfirstmiddle to their filename
-# TODO If the "./config/students.txt" is empty, ask user which to add to it
-section = []  # Array of lastfirstmiddle of students in section
-# TODO Warn user of students in section who did not submit any file
-missing_subs = []  # Array of names of students with no submission
-# TODO Iterate through students in section, add to missing if not in dictionary
+
+
+
+# At the end, report which students in section had no submission
 if len(missing_subs) > 0:
-    print "        Missing Submission for: ",
+    print "        Missing submission for the following:"
     for student in missing_subs:
-        print student,
-    print ""  # Force newline
+        print "  " + student,
+    print ''
 # TODO Delete submissions for students not in "./config/students.txt"
 print "    ...removing submissions for students from other sections"
 # TODO Create folder for this assigment in dest_directory
