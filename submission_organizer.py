@@ -432,23 +432,42 @@ if len(unclassified) > 0:
 
 # Find students in section with no submission
 missing_subs = []
-for student in submissions:
-    if len(submissions[student]) == 0:
+for student in students:
+    if student not in submissions:
         missing_subs += [student]
-        del submission[student]
 
 # Make project folder for unzipping submissions
 tograde_path += '/' + assignment_title
 os.mkdir(tograde_path)
 
+# Unzip the submission to tograde, and keep track of non-zipfiles
+nonzip_subs = []
+for student in submissions:
+    os.mkdir(tograde_path + '/' + student)
+    if zipfile.is_zipfile(temp_path + '/' + submissions[student]):
+        subzip = zipfile.ZipFile(temp_path + '/' + submissions[student])
+        subzip.extractall(tograde_path + '/' + student)
+    else:
+        # If not a valid zip, copy to the student's folder
+        nonzip_subs += [student]
+        os.rename(temp_path + '/' + submissions[student], \
+            tograde_path + '/' + student + '/' + submissions[student])
 
-
-# At the end, report which students in section had no submission
+# Report which students in section had no submission
 if len(missing_subs) > 0:
-    print "        Missing submission for the following:"
+    print "The following students did not submit anything:"
     for student in missing_subs:
         print "  " + student,
     print ''
+
+# Report which students had a nonzip submission
+if len(nonzip_subs) > 0:
+    print ("The following students submitted something that was not a valid "
+           "ZIP file:")
+    for student in nonzip_subs:
+        print "  " + student,
+    print ''
+
 # TODO Delete submissions for students not in "./config/students.txt"
 print "    ...removing submissions for students from other sections"
 # TODO Create folder for this assigment in dest_directory
