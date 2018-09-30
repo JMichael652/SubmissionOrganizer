@@ -380,7 +380,9 @@ for submission in os.listdir(temp_path):
     author = submission[:submission.find('_')]
     if author in students:  # We want to process this submission
         submissions[author] = submission
-    elif author not in nonsection_students:  # The student is unclassified
+    elif author in nonsection_students:
+        os.remove(temp_path + '/' + submission)
+    else:  # The student is unclassified
         unclassified[author] = submission
 
 # Consider adding unclassified students to section
@@ -425,6 +427,7 @@ if len(unclassified) > 0:
     for number in new_students:
         studfile.write(new_students[number] + '\n')
         nonsection_students += [new_students[number]]
+        os.remove(temp_path + '/' + unclassified[new_students[number]])
     studfile.close()
 
 # Find students in section with no submission
