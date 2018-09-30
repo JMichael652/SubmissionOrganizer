@@ -88,39 +88,40 @@ def init_config():
     print "> ", # raw_input prompt not working because of flushing
     sys.stdout.flush()
     download_path = raw_input()
+    print ''
     while not os.path.exists(download_path):
-        print ("\nThe path '%s' does not exist,\nor you do not have permission"
+        print ("The path '%s' does not exist,\nor you do not have permission"
                 " to access it. Enter another path:") % download_path
         print "> ",
         sys.stdout.flush()
         download_path = raw_input()
+        print ''
     newpaths = "DOWNLOAD_PATH=" + download_path + '\n'
 
     # Find the to-grade directory path
-    print ("\nEnter the path to the folder you want to put the assignment "
-           "folder, full of\norganized submissions:")
-    print "> ",
+    print ("Enter the path to the folder you want to put the assignment "
+           "folder, full of\norganized submissions:\n> "),
     sys.stdout.flush()
     tograde_path = raw_input()
+    print ''
     while not os.path.exists(tograde_path):
-        print "\n'%s' does not exist.\nWould you like to create it? (Y/N)" % \
+        print "'%s' does not exist.\nWould you like to create it? (Y/N)" % \
             tograde_path
         print "> ",
         sys.stdout.flush()
         choice = raw_input()
+        print ''
         if choice.lower() == 'y':
             try:
                 os.mkdir(tograde_path)
             except OSError:
-                print "\nCould not create '%s'." % tograde_path
+                print "Could not create '%s'." % tograde_path
                 choice = ''
-        else:
-            print ''  # Newline for when not 'Y', but not when OSError
         if not choice.lower() == 'y':
-            print "Enter another path:"
-            print "> ",
+            print "Enter another path:\n> ",
             sys.stdout.flush()
             tograde_path = raw_input()
+            print ''
 
     newpaths += "TOGRADE_PATH=" + tograde_path
 
@@ -129,7 +130,7 @@ def init_config():
     pathfile.write(newpaths)
     pathfile.close()
     
-    print "\nConfig folder created.\n"
+    print "Config folder created.\n"
     sys.stdout.flush()
 
 def read_config():
@@ -293,12 +294,13 @@ def assign_students():
         while choice == 4:
             sys.stdout.flush()
             choice = raw_input()
+            print ''
             if '1' in choice or 'add' in choice.lower():
-                print ("\nEnter student numbers to add to section "
+                print ("Enter student numbers to add to section "
                        "(eg. 1, 3, 8):\n> "),
                 choice = 1
             elif '2' in choice or 'remove' in choice.lower():
-                print ("\nEnter student numbers to remove from section "
+                print ("Enter student numbers to remove from section "
                        "(eg. 1, 3, 8):\n> "),
                 choice = 2
             elif '3' in choice or 'save' in choice.lower():
@@ -312,6 +314,7 @@ def assign_students():
         if choice == 1 or choice == 2:  # Add or remove
             sys.stdout.flush()
             in_list = raw_input().split(',')
+            print ''
             for item in in_list:
                 try:
                     stud_list += [int(item)]
@@ -337,7 +340,6 @@ def assign_students():
             students = [section[number] for number in sorted(section)]
             nonsection_students = [non_section[number] for number in \
                 sorted(non_section)]
-            print ''
             print _divider + "\nFinal Section:\n" + _divider
             max_namelen = max([len(name) for name in students]) + 2
             table_cols = 80 // max_namelen
@@ -369,6 +371,7 @@ while len(students) == 0:
     print "Press Enter to open the section assigner..."
     sys.stdout.flush()
     raw_input()
+    print ''
     assign_students()
     if len(students) == 0:
         print "\n\nAssigning resulted in no students being added..."
@@ -394,9 +397,11 @@ if len(unclassified) > 0:
     print "\nThe following students have not been seen in a previous session:"
     for number in new_students:
         print "%2d: %s" % (number, new_students[number])
-    print "\nEnter student numbers to add to section (eg. 1, 3, 8)\n> ",
+    print ("\nEnter student numbers to add to section (eg. 1, 3, 8),\nor press "
+           "Enter to add none.\n> "),
     sys.stdout.flush()
     in_list = raw_input().split(',')
+    print ''
 
     # Interpret the input and remove them from new_students
     stud_list = []
@@ -438,10 +443,12 @@ for student in students:
         missing_subs += [student]
 
 # Make project folder for unzipping submissions
+print "    ...creating folder in %s" % tograde_path
 tograde_path += '/' + assignment_title
 os.mkdir(tograde_path)
 
 # Unzip the submission to tograde, and keep track of non-zipfiles
+print "    ...unzipping submissions to folder"
 nonzip_subs = []
 for student in submissions:
     os.mkdir(tograde_path + '/' + student)
@@ -456,8 +463,13 @@ for student in submissions:
             tograde_path + '/' + student + '/' + submissions[student])
 
 # Remove the temporary folder and bulk submission zip
+print "    ...removing temporary folder and bulk submission zip"
 shutil.rmtree(temp_path, ignore_errors=True)
 os.remove(download_path + '/' + submission_title)
+
+# Do final reports
+print _divider
+print "\nStudent submissions unzipped to:\n%s\n" % tograde_path
 
 # Report which students in section had no submission
 if len(missing_subs) > 0:
@@ -473,25 +485,4 @@ if len(nonzip_subs) > 0:
     for student in nonzip_subs:
         print "  " + student,
     print ''
-
-# TODO Delete submissions for students not in "./config/students.txt"
-print "    ...removing submissions for students from other sections"
-# TODO Create folder for this assigment in dest_directory
-print "    ...creating folder for %s" % assignment_title
-# TODO Create folder for each student
-print "    ...creating student subfolders"
-# TODO Unzip student submissions to the folder
-print "    ...unzipping student submissions into student subfolders"
-student = ""
-submission = ""
-# TODO If file could not be unzipped, report the error and just copy to folder
-print "        Submission by '%s' could not be unzipped." % student
-print "            Submission: '%s'" % submission
-print "        ...copying problem file to student subfolder"
-# TODO Copy the nonfunctional zip to the student's subfolder
-# TODO Else, remove the zip
-# TODO Remove the temporary folder and original zip
-print "    ...removing temp folder"
-print "    ...removing bulk submission zip"
-print "Done."
 
