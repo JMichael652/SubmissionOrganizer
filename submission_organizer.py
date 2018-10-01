@@ -462,6 +462,29 @@ for student in submissions:
         os.rename(temp_path + '/' + submissions[student], \
             tograde_path + '/' + student + '/' + submissions[student])
 
+# Ensure submissions in tograde are fully unzipped
+# Some will be a folder alone in another folder (or alongside _MACOSX)
+for submission in os.listdir(tograde_path):
+    sub_path = tograde_path + '/' + submission
+    children = os.listdir(sub_path)
+    if (len(children)==1 and os.path.exists(sub_path+'/'+children[0]+'/')) or \
+       (len(children)==2 and '__MACOSX' in children):
+
+        # Find the lonely directory
+        for child in children:
+            if child == '__MACOSX':
+                shutil.rmtree(sub_path + '/' + child, ignore_errors=True)
+            else:
+                lonely = sub_path + '/' + child
+
+        # Handle the case where a grandchild has the same name
+        os.rename(lonely, lonely + 'LONELY')
+        lonely += 'LONELY'
+
+        for child in os.listdir(lonely):
+            os.rename(lonely + '/' + child, sub_path + '/' + child)
+        os.rmdir(lonely)
+       
 # Remove the temporary folder and bulk submission zip
 print "    ...removing temporary folder and bulk submission zip"
 shutil.rmtree(temp_path, ignore_errors=True)
