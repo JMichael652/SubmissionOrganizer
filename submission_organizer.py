@@ -87,14 +87,14 @@ def init_config():
            " the bulk\ndownload folder from Canvas):")
     print "> ", # raw_input prompt not working because of flushing
     sys.stdout.flush()
-    download_path = raw_input()
+    download_path = os.path.expanduser(raw_input())
     print ''
     while not os.path.exists(download_path):
         print ("The path '%s' does not exist,\nor you do not have permission"
                 " to access it. Enter another path:") % download_path
         print "> ",
         sys.stdout.flush()
-        download_path = raw_input()
+        download_path = os.path.expanduser(raw_input())
         print ''
     newpaths = "DOWNLOAD_PATH=" + download_path + '\n'
 
@@ -102,7 +102,7 @@ def init_config():
     print ("Enter the path to the folder you want to put the assignment "
            "folder, full of\norganized submissions:\n> "),
     sys.stdout.flush()
-    tograde_path = raw_input()
+    tograde_path = os.path.expanduser(raw_input())
     print ''
     while not os.path.exists(tograde_path):
         print "'%s' does not exist.\nWould you like to create it? (Y/N)" % \
@@ -120,7 +120,7 @@ def init_config():
         if not choice.lower() == 'y':
             print "Enter another path:\n> ",
             sys.stdout.flush()
-            tograde_path = raw_input()
+            tograde_path = os.path.expanduser(raw_input())
             print ''
 
     newpaths += "TOGRADE_PATH=" + tograde_path
