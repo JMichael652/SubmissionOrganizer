@@ -24,16 +24,16 @@ basepath = os.getcwd()
 _divider = '='*80
 
 # Give welcome message
-print ("\n" + _divider)
-print "Welcome to the CS 2261 Canvas Student Submission Organizer!"
-print "    ...searching for config folder"
+print("\n" + _divider)
+print("Welcome to the CS 2261 Canvas Student Submission Organizer!")
+print("    ...searching for config folder")
 
 def test_config():
     """Return whether a config folder exists in a completed state.
     """
 
     if not os.path.exists(basepath + "/.config"):
-        print "        None found."
+        print("        None found.")
         return False
     
     # Not checking student file, because an empty one causes the assigner
@@ -42,7 +42,7 @@ def test_config():
     #    return False
     
     if not os.path.exists(basepath + "/.config/paths.txt"):
-        print "        No paths file found in config folder."
+        print("        No paths file found in config folder.")
         return False
 
     pathfile = open(basepath + "/.config/paths.txt", 'r')
@@ -51,7 +51,7 @@ def test_config():
 
     paths = paths.split('\n')
     if len(paths) < 2:
-        print "        No valid paths file found in config folder."
+        print("        No valid paths file found in config folder.")
         return False
     paths = paths[0].split('=') + paths[1].split('=')
     if len(paths) < 4 or \
@@ -59,7 +59,7 @@ def test_config():
             paths[2] != "TOGRADE_PATH" or \
             not os.path.exists(paths[1]) or \
             not os.path.exists(paths[3]):
-        print "        No valid paths file found in config folder."
+        print("        No valid paths file found in config folder.")
         return False
 
     # No problems with config, so return True
@@ -72,7 +72,7 @@ def init_config():
     
     # Create the config folder
     if not os.path.exists(basepath + "/.config"):
-        print "    ...creating new config folder"
+        print("    ...creating new config folder")
         os.mkdir(basepath + "/.config")
 
     # Opting to not do this and have the assigner do it later
@@ -83,45 +83,45 @@ def init_config():
     newpaths = ''
 
     # Find the download path
-    print ("\nEnter the path to your downloads folder (where you expect to find"
-           " the bulk\ndownload folder from Canvas):")
-    print "> ", # raw_input prompt not working because of flushing
+    print("\nEnter the path to your downloads folder (where you expect to find"
+          " the bulk\ndownload folder from Canvas):")
+    print("> ", end='') # raw_input prompt not working because of flushing
     sys.stdout.flush()
-    download_path = raw_input()
-    print ''
+    download_path = os.path.expanduser(input())
+    print()
     while not os.path.exists(download_path):
-        print ("The path '%s' does not exist,\nor you do not have permission"
-                " to access it. Enter another path:") % download_path
-        print "> ",
+        print(("The path '%s' does not exist,\nor you do not have permission"
+               " to access it. Enter another path:") % download_path)
+        print("> ", end='')
         sys.stdout.flush()
-        download_path = raw_input()
-        print ''
+        download_path = os.path.expanduser(input())
+        print()
     newpaths = "DOWNLOAD_PATH=" + download_path + '\n'
 
     # Find the to-grade directory path
-    print ("Enter the path to the folder you want to put the assignment "
-           "folder, full of\norganized submissions:\n> "),
+    print("Enter the path to the folder you want to put the assignment "
+          "folder, full of\norganized submissions:\n> ", end='')
     sys.stdout.flush()
-    tograde_path = raw_input()
-    print ''
+    tograde_path = os.path.expanduser(input())
+    print()
     while not os.path.exists(tograde_path):
-        print "'%s' does not exist.\nWould you like to create it? (Y/N)" % \
-            tograde_path
-        print "> ",
+        print("'%s' does not exist.\nWould you like to create it? (Y/N)" % \
+            tograde_path)
+        print("> ", end='')
         sys.stdout.flush()
-        choice = raw_input()
-        print ''
+        choice = input()
+        print()
         if choice.lower() == 'y':
             try:
                 os.mkdir(tograde_path)
             except OSError:
-                print "Could not create '%s'." % tograde_path
+                print("Could not create '%s'." % tograde_path)
                 choice = ''
         if not choice.lower() == 'y':
-            print "Enter another path:\n> ",
+            print("Enter another path:\n> ", end='')
             sys.stdout.flush()
-            tograde_path = raw_input()
-            print ''
+            tograde_path = os.path.expanduser(input())
+            print()
 
     newpaths += "TOGRADE_PATH=" + tograde_path
 
@@ -130,7 +130,7 @@ def init_config():
     pathfile.write(newpaths)
     pathfile.close()
     
-    print "Config folder created.\n"
+    print("Config folder created.\n")
     sys.stdout.flush()
 
 def read_config():
@@ -180,7 +180,7 @@ if not test_config():
 read_config()
 
 # Get the submission file
-print "    ...searching for bulk submission archive in %s" % download_path
+print("    ...searching for bulk submission archive in %s" % download_path)
 
 possibles = []
 for item in os.listdir(download_path):
@@ -192,11 +192,11 @@ for item in os.listdir(download_path):
 
 # If there were no possible bulk submission files found
 if len(possibles) == 0:
-    print "        None found matching pattern '%sASSIGNMENT%s'" % \
-        (course_prefix, submission_suffix)
-    print _divider + '\n'
-    print "No bulk download ZIP file from Canvas found."
-    print "Try downloading again, then re-run this organizer."
+    print("        None found matching pattern '%sASSIGNMENT%s'" % 
+        (course_prefix, submission_suffix))
+    print(_divider + '\n')
+    print("No bulk download ZIP file from Canvas found.")
+    print("Try downloading again, then re-run this organizer.")
     sys.exit()
 
 # If possibles have a file in tograde already, remove then as a possible
@@ -208,18 +208,19 @@ for item in [copy for copy in possibles]:
 
 # If possibles is now empty, all bulk submission files have already been graded
 if len(possibles) == 0:
-    print "        No ungraded bulk zips found."
-    print _divider
-    print ("\nThere are bulk submission zips, but all of them already have "
-            "been previously\nprocessed. Delete the assignment folders in\n'%s'"            " to reprocess them.") % tograde_path
+    print("        No ungraded bulk zips found.")
+    print(_divider)
+    print(("\nThere are bulk submission zips, but all of them already have "
+          "been previously\nprocessed. Delete the assignment folders in\n'%s'"
+          " to reprocess them.") % tograde_path)
     sys.exit()
 
 submission_title = possibles[0]
 
-print "        Submission selected:", submission_title
+print("        Submission selected:", submission_title)
 assignment_title = submission_title[len(course_prefix): \
     submission_title.rfind(submission_suffix)]
-print "        Assignment title:", assignment_title
+print("        Assignment title:", assignment_title)
 
 
 
@@ -228,7 +229,7 @@ temp_path = download_path + "/temp_" + submission_title[:-4]
 if os.path.exists(temp_path):  # If temp_file was previously undeleted
     shutil.rmtree(temp_path, ignore_errors=True)  # Remove the entire tree
 os.mkdir(temp_path)
-print "    ...unzipping bulk submission folder into temporary file"
+print("    ...unzipping bulk submission folder into temporary file")
 bulk = zipfile.ZipFile(download_path + '/' + submission_title)
 bulk.extractall(temp_path)
 bulk.close()
@@ -248,7 +249,7 @@ def assign_students():
     # Assign students numbers for section assignment
     non_section = {}
     for i in range(1,len(students_all)+1):
-        non_section[i] = students_all[i-1]
+        non_section[i] = sorted(students_all)[i-1]
     section = {}
 
     # Prepare to build the tables of students in the section and not
@@ -263,58 +264,59 @@ def assign_students():
     while choice != 3:
 
         # Place non-section students in table
-        print "\n" + _divider + ("\nStudents not in section (format is "
-            "lastname - firstname - middlename):\n") + _divider
+        print("\n" + _divider + ("\nStudents not in section (format is "
+            "lastname - firstname - middlename):\n") + _divider)
         cur_col = 0
         for number in sorted(non_section):
             if cur_col == table_cols:
-                print ''
+                print()
                 cur_col = 0
-            print (" %3d: %-"+str(max_namelen)+"s") % \
-                    (number, non_section[number]),
+            print((" %3d: %-"+str(max_namelen)+"s") % \
+                    (number, non_section[number]), end='')
             cur_col += 1
-        print ''
+        print()
 
         # Place section students in table
-        print _divider + "\nStudents in section:\n" + _divider
+        print(_divider + "\nStudents in section:\n" + _divider)
         cur_col = 0
         for number in sorted(section):
             if cur_col == table_cols:
-                print ''
+                print()
                 cur_col = 0
-            print (" %3d: %-"+str(max_namelen)+"s") % (number, section[number]),
+            print((" %3d: %-"+str(max_namelen)+"s") % \
+                (number, section[number]), end='')
             cur_col += 1
-        print ''
+        print()
 
         # Decide whether to add, remove, or save section
-        print _divider + ("\nSELECT: (1) Add to section, (2) Remove from "
-                          "section, (3) Save section and finish\n> "),
+        print(_divider + ("\nSELECT: (1) Add to section, (2) Remove from "
+                          "section, (3) Save section and finish\n> "), end='')
 
         choice = 4  # Code for not a valid selection
         while choice == 4:
             sys.stdout.flush()
-            choice = raw_input()
-            print ''
+            choice = input()
+            print()
             if '1' in choice or 'add' in choice.lower():
-                print ("Enter student numbers to add to section "
-                       "(eg. 1, 3, 8):\n> "),
+                print(("Enter student numbers to add to section "
+                       "(eg. 1, 3, 8):\n> "), end='')
                 choice = 1
             elif '2' in choice or 'remove' in choice.lower():
-                print ("Enter student numbers to remove from section "
-                       "(eg. 1, 3, 8):\n> "),
+                print(("Enter student numbers to remove from section "
+                       "(eg. 1, 3, 8):\n> "), end='')
                 choice = 2
             elif '3' in choice or 'save' in choice.lower():
                 choice = 3
             else:
-                print "'" + choice + "' is not a valid selection.\n> ",
+                print("'" + choice + "' is not a valid selection.\n> ", end='')
                 choice = 4
     
         # Interpret choice
         stud_list = []
         if choice == 1 or choice == 2:  # Add or remove
             sys.stdout.flush()
-            in_list = raw_input().split(',')
-            print ''
+            in_list = input().split(',')
+            print()
             for item in in_list:
                 try:
                     stud_list += [int(item)]
@@ -340,21 +342,21 @@ def assign_students():
             students = [section[number] for number in sorted(section)]
             nonsection_students = [non_section[number] for number in \
                 sorted(non_section)]
-            print _divider + "\nFinal Section:\n" + _divider
+            print(_divider + "\nFinal Section:\n" + _divider)
             max_namelen = max([len(name) for name in students]) + 2
             table_cols = 80 // max_namelen
             col_num = 0
             for student in students:
                 if col_num == table_cols:
-                    print ''
+                    print()
                     col_num = 0
-                print ("%-"+str(max_namelen)+"s") % student,
+                print(("%-"+str(max_namelen)+"s") % student, end='')
                 col_num += 1
-            print ''
-            print _divider
+            print()
+            print(_divider)
 
             # Save the results to the config files
-            print "    ...saving section to configs"
+            print("    ...saving section to configs")
             studfile = open(basepath + '/.config/students.txt', 'w+')
             for student in students:
                 studfile.write(student + "\n")
@@ -367,17 +369,17 @@ def assign_students():
 
 # Check to see if assigning students to section is necessary
 while len(students) == 0:
-    print "\nStudents have not been assigned to your section."
-    print "Press Enter to open the section assigner..."
+    print("\nStudents have not been assigned to your section.")
+    print("Press Enter to open the section assigner...")
     sys.stdout.flush()
-    raw_input()
-    print ''
+    input()
+    print()
     assign_students()
     if len(students) == 0:
-        print "\n\nAssigning resulted in no students being added..."
+        print("\n\nAssigning resulted in no students being added...")
 
 # Find submissions of students in grader's section
-print "    ...assigning submissions to students"
+print("    ...assigning submissions to students")
 submissions = {}
 unclassified = {}
 for submission in os.listdir(temp_path):
@@ -392,16 +394,17 @@ for submission in os.listdir(temp_path):
 # Consider adding unclassified students to section
 if len(unclassified) > 0:
     new_students = {}
-    for i in range(1, len(unclassified)+1):
-        new_students[i] = unclassified.keys()[i-1]
-    print "\nThe following students have not been seen in a previous session:"
+    unclassified_students = [student for student in unclassified]
+    for i in range(1, len(unclassified_students)+1):
+        new_students[i] = unclassified_students[i-1]
+    print("\nThe following students have not been seen in a previous session:")
     for number in new_students:
-        print "%2d: %s" % (number, new_students[number])
-    print ("\nEnter student numbers to add to section (eg. 1, 3, 8),\nor press "
-           "Enter to add none.\n> "),
+        print("%2d: %s" % (number, new_students[number]))
+    print(("\nEnter student numbers to add to section (eg. 1, 3, 8),\nor press "
+           "Enter to add none.\n> "), end='')
     sys.stdout.flush()
-    in_list = raw_input().split(',')
-    print ''
+    in_list = input().split(',')
+    print()
 
     # Interpret the input and remove them from new_students
     stud_list = []
@@ -418,15 +421,15 @@ if len(unclassified) > 0:
 
     # If students were selected, add to students, submissions, and config
     if len(changes) > 0:
-        print "\nThe following students have been added to your section:"
+        print("\nThe following students have been added to your section:")
         studfile = open(basepath + "/.config/students.txt", 'a')
         for student in changes:
             studfile.write(student + '\n')
             students += [student]
             submissions[student] = unclassified[student]
-            print "  " + student
+            print("  " + student)
         studfile.close()
-        print '\n'
+        print('\n')
 
     # Add the unchosen unclassified students to the nonsection
     studfile = open(basepath + "/.config/nonsection.txt", 'a')
@@ -443,12 +446,12 @@ for student in students:
         missing_subs += [student]
 
 # Make project folder for unzipping submissions
-print "    ...creating folder in %s" % tograde_path
+print("    ...creating folder in %s" % tograde_path)
 tograde_path += '/' + assignment_title
 os.mkdir(tograde_path)
 
 # Unzip the submission to tograde, and keep track of non-zipfiles
-print "    ...unzipping submissions to folder"
+print("    ...unzipping submissions to folder")
 nonzip_subs = []
 for student in submissions:
     os.mkdir(tograde_path + '/' + student)
@@ -486,26 +489,26 @@ for submission in os.listdir(tograde_path):
         os.rmdir(lonely)
        
 # Remove the temporary folder and bulk submission zip
-print "    ...removing temporary folder and bulk submission zip"
+print("    ...removing temporary folder and bulk submission zip")
 shutil.rmtree(temp_path, ignore_errors=True)
 os.remove(download_path + '/' + submission_title)
 
 # Do final reports
-print _divider
-print "\nStudent submissions unzipped to:\n%s\n" % tograde_path
+print(_divider)
+print("\nStudent submissions unzipped to:\n%s\n" % tograde_path)
 
 # Report which students in section had no submission
 if len(missing_subs) > 0:
-    print "The following students did not submit anything:"
+    print("The following students did not submit anything:")
     for student in missing_subs:
-        print "  " + student,
-    print ''
+        print("  " + student, end='')
+    print()
 
 # Report which students had a nonzip submission
 if len(nonzip_subs) > 0:
-    print ("The following students submitted something that was not a valid "
-           "ZIP file:")
+    print("The following students submitted something that was not a valid "
+          "ZIP file:")
     for student in nonzip_subs:
-        print "  " + student,
-    print ''
+        print("  " + student, end='')
+    print()
 
