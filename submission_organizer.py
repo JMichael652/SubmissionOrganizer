@@ -15,8 +15,8 @@ import zipfile
 
 # Setup initial config variables
 download_path = ''
-course_prefix = "CS-2261-A-"
-submission_suffix = "_submissions.zip"
+course_prefix = "submissions"
+submission_suffix = ".zip"
 tograde_path = ''
 students = []
 nonsection_students = []
@@ -192,19 +192,29 @@ for item in os.listdir(download_path):
 
 # If there were no possible bulk submission files found
 if len(possibles) == 0:
-    print "        None found matching pattern '%sASSIGNMENT%s'" % \
-        (course_prefix, submission_suffix)
+    print "        None found matching pattern '%s%s' or '%s (#)%s'" % \
+        (course_prefix, submission_suffix, course_prefix, submission_suffix)
     print _divider + '\n'
     print "No bulk download ZIP file from Canvas found."
     print "Try downloading again, then re-run this organizer."
     sys.exit()
 
-# If possibles have a file in tograde already, remove then as a possible
+# If possibles have a file in tograde already, remove them as a possible
+assignment_names = []
 for item in [copy for copy in possibles]:
-    possible_title = item[len(course_prefix): \
-        item.rfind(submission_suffix)]
+    # Name of assignment is contained in name of each item in zip
+    bulk = zipfile.ZipFile(download_path + '/' + item)
+    possible_title = bulk.namelist()[0]
+    bulk.close()
+    # Original format: lastmiddlefirst_####_#######_ASSIGNMENT_subnamehere.zip
+    possible_title = possible_title[possible_title.find('_')+1:]
+    possible_title = possible_title[possible_title.find('_')+1:]
+    possible_title = possible_title[possible_title.find('_')+1:]
+    possible_title = possible_title[:possible_title.find('_')]
     if os.path.exists(tograde_path + '/' + possible_title): 
         possibles.remove(item)
+    else:
+        assignment_names.append(possible_title)
 
 # If possibles is now empty, all bulk submission files have already been graded
 if len(possibles) == 0:
@@ -217,8 +227,7 @@ if len(possibles) == 0:
 submission_title = possibles[0]
 
 print "        Submission selected:", submission_title
-assignment_title = submission_title[len(course_prefix): \
-    submission_title.rfind(submission_suffix)]
+assignment_title = assignment_names[0]
 print "        Assignment title:", assignment_title
 
 
