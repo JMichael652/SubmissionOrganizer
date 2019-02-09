@@ -210,6 +210,7 @@ for item in [copy for copy in possibles]:
     possible_title = possible_title[possible_title.find('_')+1:]
     possible_title = possible_title[possible_title.find('_')+1:]
     possible_title = possible_title[possible_title.find('_')+1:]
+    possible_title = possible_title[possible_title.find('_')+1:]
     possible_title = possible_title[:possible_title.find('_')]
     if os.path.exists(tograde_path + '/' + possible_title): 
         possibles.remove(item)
