@@ -12,6 +12,8 @@ import os
 import shutil
 import sys
 import zipfile
+import re
+from collections import Counter
 
 # Setup initial config variables
 download_path = ''
@@ -199,19 +201,27 @@ if len(possibles) == 0:
     print "Try downloading again, then re-run this organizer."
     sys.exit()
 
+def find_title(submission_names):
+    """Finds the most likely title of the assignment from all of the names of
+    student submissions.
+    """
+    freq = Counter()
+
+    # Usual format: lastmiddlefirst_####_#######_ASSIGNMENT_FirstLast.zip
+    for i in range(len(submission_names)):
+            title = re.findall(r'\d{3,12}_([A-Za-z]+.*)_', submission_names[i])
+            freq[title[0]] += 1
+
+    return freq.most_common(1)[0][0]
+    
+
 # If possibles have a file in tograde already, remove them as a possible
 assignment_names = []
 for item in [copy for copy in possibles]:
     # Name of assignment is contained in name of each item in zip
     bulk = zipfile.ZipFile(download_path + '/' + item)
-    possible_title = bulk.namelist()[0]
+    possible_title = find_title(bulk.namelist())
     bulk.close()
-    # Original format: lastmiddlefirst_####_#######_ASSIGNMENT_subnamehere.zip
-    possible_title = possible_title[possible_title.find('_')+1:]
-    possible_title = possible_title[possible_title.find('_')+1:]
-    possible_title = possible_title[possible_title.find('_')+1:]
-    possible_title = possible_title[possible_title.find('_')+1:]
-    possible_title = possible_title[:possible_title.find('_')]
     if os.path.exists(tograde_path + '/' + possible_title): 
         possibles.remove(item)
     else:
