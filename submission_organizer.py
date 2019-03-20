@@ -210,7 +210,8 @@ def find_title(submission_names):
     # Usual format: lastmiddlefirst_####_#######_ASSIGNMENT_FirstLast.zip
     for i in range(len(submission_names)):
             title = re.findall(r'\d{3,12}_([A-Za-z]+.*)_', submission_names[i])
-            freq[title[0]] += 1
+            if len(title) > 0: # Handle case where pattern not found
+                freq[title[0]] += 1
 
     return freq.most_common(1)[0][0]
     
